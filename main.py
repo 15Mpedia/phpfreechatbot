@@ -2,6 +2,7 @@ import csv
 import re
 import time
 import ast
+from datetime import datetime
 
 import requests
 
@@ -26,7 +27,7 @@ load_chat = requests.get(chat_url, params={"f":"loadChat", "pfc_ajax":1},
 #then, we do the first real request. this should return all previous cached
 #messages, a list of rooms, and some other stuff
 data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-          "cmd":'/connect {} 0 "{}"'.format(client_id, "LogBot")}
+        "cmd":'/connect {} 0 "{}"'.format(client_id, "Harmonica Robot")}
 
 first_request = requests.post(chat_url, data=data, cookies=cookies)
 room_id = re.search(r"'join', 'ok', Array\('([a-z0-9]*)", first_request.text).group(1)
@@ -39,7 +40,8 @@ new_msgs_re = re.compile(r"pfc.handleResponse\('getnewmsg', 'ok', (.*)\);")
 
 log_number = 0
 while True:
-    with open("log{}.csv".format(log_number), "w") as log_csv_file:
+    now = datetime.utcnow().strftime("%Y_%m_%d_%H;%M;%S")
+    with open("log{}.csv".format(now), "w") as log_csv_file:
         log_csv = csv.writer(log_csv_file, lineterminator="\n")
         no_break = True
         while no_break:
@@ -52,5 +54,5 @@ while True:
                         content = new_msg[6]
                         if content == "!newlog":
                             no_break = False
-            time.sleep(1)
+            time.sleep(4)
     log_number += 1
