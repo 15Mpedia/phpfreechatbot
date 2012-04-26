@@ -81,8 +81,16 @@ class PFCClient(sched.scheduler):
             command = msg_content[1:].split()[0]
             if command in self.all_fields_responders:
                 responder = self.all_fields_responders[command]
-                responder(msg_number, msg_date, msg_time, msg_sender,
+                responder(self, msg_number, msg_date, msg_time, msg_sender,
                           msg_room, msg_type, msg_content)
             if command in self.content_responders:
                 responder = self.content_responders[command]
-                responder(msg_content)
+                responder(self, msg_content)
+
+    def send(self, msg):
+        send_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
+                     "cmd":"/send {} {} {}".format(self.client_id, self.room_id, msg)}
+        send_request = requests.post(self.chat_url, data=send_data,
+                                     cookies=self.cookies)
+        print send_request.text
+        self.update_received(send_request.text)
