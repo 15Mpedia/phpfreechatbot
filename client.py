@@ -11,6 +11,10 @@ class PFCClientError(Exception):
     pass
 
 class PFCClient(sched.scheduler):
+    """
+    A basic client class that connects to PHP Free Chat and can recieve and
+    send messages
+    """
 
     new_msgs_re = re.compile(r"pfc.handleResponse\('getnewmsg', 'ok', (.*)\);")
     all_fields_responders = {}
@@ -18,11 +22,18 @@ class PFCClient(sched.scheduler):
 
     @classmethod
     def all_fields_responder(cls, responder):
+        """
+        A decorator for responders that need access to all the attributes of
+        the message recieved.
+        """
         cls.all_fields_responders[responder.__name__] = responder
         return responder
 
     @classmethod
     def content_responder(cls, responder):
+        """
+        A decorator for responders that need only the message content.
+        """
         cls.content_responders[responder.__name__] = responder
         return responder
 
@@ -30,6 +41,11 @@ class PFCClient(sched.scheduler):
         sched.scheduler.__init__(self, time.time, time.sleep)
 
     def connect(self, chat_url, name):
+        """
+        Establish a connection to the PHP Free Chat running at the specified URL.
+        Connect with the given name.
+        """
+
         self.chat_url = chat_url
         r = requests.get(chat_url)
         if not r:
@@ -57,9 +73,15 @@ class PFCClient(sched.scheduler):
             raise PFCClientError, "could not get a room ID"
 
     def schedule_update(self):
+        """
+        Schedule an update.
+        """
         self.enter(3, 0, self.update, [])
 
     def update(self):
+        """
+        Update the bot and schedule another update.
+        """
         self.schedule_update()
 
         update_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
@@ -69,6 +91,9 @@ class PFCClient(sched.scheduler):
         self.update_received(update_request.text)
 
     def update_received(self, update_content):
+        """
+        Called when an update has been recieved from the server.
+        """
         for line in update_content.splitlines():
             new_msgs = re.match(self.new_msgs_re, line)
             if new_msgs:
@@ -77,6 +102,9 @@ class PFCClient(sched.scheduler):
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
                          msg_room, msg_type, msg_content):
+        """
+        Called when a message has been recieved from the server.
+        """
         if msg_content.startswith("!"):
             command = msg_content[1:].split()[0]
             if command in self.all_fields_responders:
@@ -88,6 +116,9 @@ class PFCClient(sched.scheduler):
                 responder(self, msg_content)
 
     def send(self, msg):
+        """
+        Send a message to the server.
+        """
         send_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
                      "cmd":"/send {} {} {}".format(self.client_id, self.room_id, msg)}
         send_request = requests.post(self.chat_url, data=send_data,
