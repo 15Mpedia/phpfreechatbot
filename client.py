@@ -92,5 +92,4 @@ class PFCClient(sched.scheduler):
                      "cmd":"/send {} {} {}".format(self.client_id, self.room_id, msg)}
         send_request = requests.post(self.chat_url, data=send_data,
                                      cookies=self.cookies)
-        print send_request.text
         self.update_received(send_request.text)
