@@ -1,2 +1,2 @@
-This file was created by PyCharm 2.0.2 for binding GitHub repository
-This file was modified by PyCharm 2.0.2 for binding GitHub repository
+Make sure you fill in robot.cfg-example with real values if you want the example bot to work.
+You'll also need to rename it to robot.cfg.
