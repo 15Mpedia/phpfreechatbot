@@ -1,0 +1,9 @@
+[email]
+server:     smtp.gmail.com:587
+fromaddr:   example@gmail.com
+username:   username
+password:   password
+
+[chat]
+chat_url:   http://example.com/chat/
+name:       Beer Logger Bot
