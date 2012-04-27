@@ -2,6 +2,7 @@ import ast
 import time
 import re
 import sched
+import traceback
 import lxml
 
 import requests
@@ -107,15 +108,19 @@ class PFCClient(sched.scheduler):
         """
         Called when a message has been recieved from the server.
         """
-        if msg_content.startswith("!"):
-            command = msg_content[1:].split()[0]
-            if command in self.all_fields_responders:
-                responder = self.all_fields_responders[command]
-                responder(self, msg_number, msg_date, msg_time, msg_sender,
-                          msg_room, msg_type, msg_content)
-            if command in self.content_responders:
-                responder = self.content_responders[command]
-                responder(self, msg_content)
+        try:
+            if msg_content.startswith("!"):
+                command = msg_content[1:].split()[0]
+                if command in self.all_fields_responders:
+                    responder = self.all_fields_responders[command]
+                    responder(self, msg_number, msg_date, msg_time, msg_sender,
+                              msg_room, msg_type, msg_content)
+                if command in self.content_responders:
+                    responder = self.content_responders[command]
+                    responder(self, msg_content)
+        except:
+            print "Exception while responding to a message."
+            traceback.print_exc()
 
     def send(self, msg):
         """
