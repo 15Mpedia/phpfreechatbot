@@ -2,6 +2,7 @@ import ast
 import time
 import re
 import sched
+import lxml
 
 import requests
 
@@ -98,6 +99,7 @@ class PFCClient(sched.scheduler):
             new_msgs = re.match(self.new_msgs_re, line)
             if new_msgs:
                 for new_msg in ast.literal_eval(new_msgs.group(1)):
+                    new_msg[-3] = lxml.html.fromstring(new_msg[-3]).text_content()
                     self.message_received(*new_msg[:-2])
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
