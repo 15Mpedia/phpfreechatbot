@@ -84,7 +84,7 @@ class HarmonicaRobot(PFCClient):
             self.send("Log emailed to "+to_addr)
             if log_num == -1:
                 self.logs.append(Log())
-        except smtplib.SMTPException as e:
+        except smtplib.SMTPException:
             self.send("Couldn't send to that email address, sorry.")
 
     @PFCClient.content_responder
