@@ -1,16 +1,38 @@
 import ConfigParser
 from datetime import datetime
+import htmlentitydefs
 import re
 import sched
 import smtplib
 from email.mime.text import MIMEText
 import traceback
 import time
+import ast
+
 import requests
 
-import lxml.html
-
 __author__ = 'cseebach'
+
+def unescape(text):
+    def fixup(m):
+        text = m.group(0)
+        if text[:2] == "&#":
+            # character reference
+            try:
+                if text[:3] == "&#x":
+                    return unichr(int(text[3:-1], 16))
+                else:
+                    return unichr(int(text[2:-1]))
+            except ValueError:
+                pass
+        else:
+            # named entity
+            try:
+                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
+            except KeyError:
+                pass
+        return text # leave as is
+    return re.sub("&#?\w+;", fixup, text)
 
 class PFCClientError(Exception):
     pass
@@ -103,7 +125,7 @@ class PFCClient(sched.scheduler):
             new_msgs = re.match(self.new_msgs_re, line)
             if new_msgs:
                 for new_msg in ast.literal_eval(new_msgs.group(1)):
-                    new_msg[-3] = lxml.html.fromstring(new_msg[-3]).text_content()
+                    new_msg[-3] = unescape(new_msg[-3])
                     self.message_received(*new_msg[:-2])
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
