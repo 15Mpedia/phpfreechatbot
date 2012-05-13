@@ -76,7 +76,7 @@ class PFCClient(sched.scheduler):
         self.chat_url = chat_url
         r = requests.get(chat_url)
         if not r:
-            raise PFCClientError, "could not get a response at {}".format(chat_url)
+            raise PFCClientError, "could not get a response at {0}".format(chat_url)
 
         self.cookies = r.cookies
         if "PHPSESSID" not in self.cookies:
@@ -92,7 +92,7 @@ class PFCClient(sched.scheduler):
                                  cookies=self.cookies)
 
         data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-                "cmd":'/connect {} 0 "{}"'.format(self.client_id, name)}
+                "cmd":'/connect {0} 0 "{1}"'.format(self.client_id, name)}
         try:
             room_request = requests.post(chat_url, data=data, cookies=self.cookies)
             self.room_id = re.search(r"'join', 'ok', Array\('([a-z0-9]*)", room_request.text).group(1)
@@ -112,7 +112,7 @@ class PFCClient(sched.scheduler):
         self.schedule_update()
 
         update_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-                       "cmd":'/update {} {}'.format(self.client_id, self.room_id)}
+                       "cmd":'/update {0} {1}'.format(self.client_id, self.room_id)}
         update_request = requests.post(self.chat_url, data=update_data,
                                        cookies=self.cookies)
         self.update_received(update_request.text)
@@ -152,7 +152,7 @@ class PFCClient(sched.scheduler):
         Send a message to the server.
         """
         send_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-                     "cmd":"/send {} {} {}".format(self.client_id, self.room_id, msg)}
+                     "cmd":"/send {0} {1} {2}".format(self.client_id, self.room_id, msg)}
         send_request = requests.post(self.chat_url, data=send_data,
                                      cookies=self.cookies)
         self.update_received(send_request.text)
@@ -210,19 +210,19 @@ class BeerLoggerBot(PFCClient):
         """
         splits = msg_content.split()
         if len(splits) == 1:
-            self.send("Here's a beer for ya, {}!".format(msg_sender))
+            self.send("Here's a beer for ya, {0}!".format(msg_sender))
         elif len(splits) > 1:
             if splits[1][0] in "AEIOUaeiou":
-                msg = "Here's an {} for ya, {}!"
+                msg = "Here's an {0} for ya, {1}!"
             else:
-                msg = "Here's a {} for ya, {}!"
+                msg = "Here's a {0} for ya, {1}!"
             self.send(msg.format(" ".join(splits[1:]), msg_sender))
 
     def make_log_email(self, log_num, subject, to):
         """
         Create a log email message from the given log.
         """
-        full_log = "\r\n".join("{} <{}> {}".format(*msg[1:]) for msg in self.logs[log_num])
+        full_log = "\r\n".join("{0} <{1}> {2}".format(*msg[1:]) for msg in self.logs[log_num])
         msg = MIMEText(full_log)
         msg["Subject"] = "Chat Log: " + subject
         msg["From"] = self.config.get("email", "fromaddr")
@@ -294,7 +294,7 @@ class BeerLoggerBot(PFCClient):
         try:
             log_num = int(splits[1])
             del self.logs[log_num-1]
-            self.send("Log {} cleared.".format(log_num))
+            self.send("Log {0} cleared.".format(log_num))
         except ValueError:
             self.send("That's not a valid number. :P")
         except IndexError:
