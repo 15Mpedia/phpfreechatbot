@@ -111,11 +111,14 @@ class PFCClient(sched.scheduler):
         """
         self.schedule_update()
 
-        update_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-                       "cmd":'/update {0} {1}'.format(self.client_id, self.room_id)}
-        update_request = requests.post(self.chat_url, data=update_data,
-                                       cookies=self.cookies)
-        self.update_received(update_request.text)
+        try:
+            update_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
+                           "cmd":'/update {0} {1}'.format(self.client_id, self.room_id)}
+            update_request = requests.post(self.chat_url, data=update_data,
+                                           cookies=self.cookies)
+            self.update_received(update_request.text)
+        except requests.RequestException:
+            pass #we'll try again on the next update
 
     def update_received(self, update_content):
         """
@@ -151,11 +154,14 @@ class PFCClient(sched.scheduler):
         """
         Send a message to the server.
         """
-        send_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
-                     "cmd":"/send {0} {1} {2}".format(self.client_id, self.room_id, msg)}
-        send_request = requests.post(self.chat_url, data=send_data,
-                                     cookies=self.cookies)
-        self.update_received(send_request.text)
+        try:
+            send_data = {"pfc_ajax":1, "f":"handleRequest", "_":"",
+                         "cmd":"/send {0} {1} {2}".format(self.client_id, self.room_id, msg)}
+            send_request = requests.post(self.chat_url, data=send_data,
+                                         cookies=self.cookies)
+            self.update_received(send_request.text)
+        except requests.RequestException:
+            self.enter(1, 0, self.send, [msg])
 
 class Log(list):
     """
