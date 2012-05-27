@@ -118,6 +118,8 @@ class PFCClient(sched.scheduler):
                                            cookies=self.cookies)
             self.update_received(update_request.text)
         except requests.RequestException:
+            print "Exception while updating from the server."
+            traceback.print_exc()
             pass #we'll try again on the next update
 
     def update_received(self, update_content):
@@ -161,6 +163,8 @@ class PFCClient(sched.scheduler):
                                          cookies=self.cookies)
             self.update_received(send_request.text)
         except requests.RequestException:
+            print "Exception while trying to send a message."
+            traceback.print_exc()
             self.enter(1, 0, self.send, [msg])
 
 class Log(list):
