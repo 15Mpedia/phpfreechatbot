@@ -228,6 +228,27 @@ class BeerLoggerBot(PFCClient):
                 msg = "Here's a {0} for ya, {1}!"
             self.send(msg.format(" ".join(splits[1:]), msg_sender))
 
+    @PFCClient.all_fields_responder
+    def gimme(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
+              msg_type, msg_content):
+        """
+        The !gimme command.
+        """
+        splits = msg_content.split()
+        if len(splits) == 1:
+            self.send("Here's a cool thingy for ya, {0}!".format(msg_sender))
+        elif len(splits) == 2:
+            thing = msg_content[len("!gimme "):]
+            if thing[0] in "AEIOUaeiou":
+                msg = "Here's an {0} for ya, {1}!"
+            else:
+                msg = "Here's a {0} for ya, {1}!"
+            self.send(msg.format(" ".join(splits[1:]), msg_sender))
+        else:
+            thing = msg_content[len("!gimme "):]
+            self.send("Here's {0} for ya, {1}!".format(thing, msg_sender))
+
+    """
     def make_log_email(self, log_num, subject, to):
         """
         Create a log email message from the given log.
@@ -309,6 +330,7 @@ class BeerLoggerBot(PFCClient):
             self.send("That's not a valid number. :P")
         except IndexError:
             self.send("No log with that number exists.")
+    """
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
                          msg_room, msg_type, msg_content):
