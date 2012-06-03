@@ -180,7 +180,7 @@ class BeerLoggerBot(PFCClient):
             self.send("email defaults to configured mailing list address")
 
     def mark_exists(self, subject):
-        results = self.log.execute("SELECT * FROM marks WHERE name='%s'" % subject)
+        results = self.log.execute("SELECT * FROM marks WHERE name=?", (subject,))
         return results.fetchone()
 
     def make_log_email(self, text, subject, to):
@@ -195,10 +195,10 @@ class BeerLoggerBot(PFCClient):
         return msg
 
     def send_log_email(self, subject, to_addr):
-        mark = self.log.execute("SELECT * FROM marks WHERE name='%s'" % subject).fetchone()
+        mark = self.log.execute("SELECT * FROM marks WHERE name=?", (subject,)).fetchone()
 
         messages = []
-        for row in self.log.execute("SELECT * FROM log WHERE date >= %f AND date <= %f" % (mark[1], mark[2])):
+        for row in self.log.execute("SELECT * FROM log WHERE date >= ? AND date <= ?", (mark[1], mark[2])):
             messages.append("<{0}> {1}".format(row[1], row[2]))
 
         log_email = self.make_log_email("\n".join(messages), subject, to_addr)
