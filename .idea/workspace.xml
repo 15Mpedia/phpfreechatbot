@@ -2,38 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e4123593-8589-45d4-b9a1-95149ed16d7f" name="Default" comment="">
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\api.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\async.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\auth.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\compat.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\cookies.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\defaults.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\exceptions.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\hooks.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\models.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\oreos\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\oreos\core.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\oreos\monkeys.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\oreos\structures.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\_collections.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\connectionpool.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\exceptions.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\filepost.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\packages\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\packages\mimetools_choose_boundary\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\packages\six.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\packages\ssl_match_hostname\__init__.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\poolmanager.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\request.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\response.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\packages\urllib3\util.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\sessions.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\status_codes.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\structures.py" afterPath="" />
-      <change type="DELETED" beforePath="C:\Users\Cameron\PycharmProjects\phpfreechatlogger\requests\utils.py" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.py" afterPath="$PROJECT_DIR$/main.py" />
     </list>
@@ -60,10 +28,8 @@
       <file leaf-file-name="main.py" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="234" column="48" selection-start="8001" selection-end="8001" vertical-scroll-proportion="-0.27227724">
-              <folding>
-                <element signature="e#0#19#0" expanded="true" />
-              </folding>
+            <state line="0" column="19" selection-start="19" selection-end="19" vertical-scroll-proportion="0.0">
+              <folding />
             </state>
           </provider>
         </entry>
@@ -313,7 +279,11 @@
       <created>1338689628291</created>
       <updated>1338689628291</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="fixed !sendLog without specifed email behavior">
+      <created>1338701877304</created>
+      <updated>1338701877304</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TodoView" selected-index="3">
@@ -340,6 +310,7 @@
     <frame x="-1924" y="-184" width="1928" height="1088" extended-state="0" />
     <editor active="false" />
     <layout>
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Data Sources" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32914925" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -354,7 +325,6 @@
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32943678" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -397,7 +367,7 @@
     <option name="SHOW_VCS_ERROR_NOTIFICATIONS" value="true" />
     <option name="FORCE_NON_EMPTY_COMMENT" value="false" />
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="false" />
-    <option name="LAST_COMMIT_MESSAGE" value="!markLog and !sendLog implemented TODO: fix multiword mark name functions" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed !sendLog without specifed email behavior" />
     <option name="MAKE_NEW_CHANGELIST_ACTIVE" value="true" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="false" />
     <option name="CHECK_FILES_UP_TO_DATE_BEFORE_COMMIT" value="false" />
@@ -424,6 +394,7 @@
     <MESSAGE value="prints exceptions recieved while trying to send or update to the console" />
     <MESSAGE value="new !gimme command. Log stuff commented out, preparing for new log stuff" />
     <MESSAGE value="!markLog and !sendLog implemented TODO: fix multiword mark name functions" />
+    <MESSAGE value="fixed !sendLog without specifed email behavior" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -451,10 +422,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="234" column="48" selection-start="8001" selection-end="8001" vertical-scroll-proportion="-0.27227724">
-          <folding>
-            <element signature="e#0#19#0" expanded="true" />
-          </folding>
+        <state line="0" column="19" selection-start="19" selection-end="19" vertical-scroll-proportion="0.0">
+          <folding />
         </state>
       </provider>
     </entry>

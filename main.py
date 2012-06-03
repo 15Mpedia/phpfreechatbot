@@ -1,5 +1,4 @@
 import ConfigParser
-import htmlentitydefs
 import re
 import sched
 import smtplib
