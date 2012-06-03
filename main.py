@@ -162,6 +162,11 @@ class Log(list):
         self.date = date
         self.subject = "Chat Log"
 
+
+def is_email(string):
+    return re.match(r"^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$", string)
+
+
 class BeerLoggerBot(PFCClient):
     """
     An extension of PFCClient that offers the following commands:
@@ -255,7 +260,7 @@ class BeerLoggerBot(PFCClient):
                 return
             try:
                 end_time = time.mktime(timeparse(splits[2], default=default).timetuple())
-                subject = u" ".join(splits[3:])
+                subject = " ".join(splits[3:])
                 self.set_mark(subject, start_time, end_time)
             except ValueError:
                 #the end time we tried to parse was actually part of the subject
@@ -268,7 +273,7 @@ class BeerLoggerBot(PFCClient):
         else:
             #give usage help
             self.send("usage: !markLog start_time [end_time] subject")
-            self.send("end time defaults to last sent message")
+            self.send("end time defaults to last logged message")
             self.send("specify time like this: DD-MM-YYYY_HH:MM:SS")
             self.send("date defaults to date of last logged message")
 
@@ -292,8 +297,12 @@ class BeerLoggerBot(PFCClient):
             else:
                 self.send("No mark by that name.")
         elif len(splits) >= 3:
-            email = splits[-1]
-            subject = " ".join(splits[1:-1])
+            if is_email(splits[-1]):
+                email = splits[-1]
+                subject = " ".join(splits[1:-1])
+            else:
+                email = self.config.get("mailing_list", "address")
+                subject = " ".join(splits[1:])
             if self.mark_exists(subject):
                 self.send_log_email(subject, email)
             else:
@@ -309,7 +318,7 @@ class BeerLoggerBot(PFCClient):
 
     def make_log_email(self, text, subject, to):
         """
-        Create a log email message from the given log.
+        Create a log email message from the given log text.
         """
         msg = MIMEText(text)
         msg["Subject"] = "Chat Log: " + subject
