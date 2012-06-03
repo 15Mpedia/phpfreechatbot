@@ -233,8 +233,9 @@ class BeerLoggerBot(PFCClient):
         self.log.execute("INSERT INTO log VALUES (?,?,?)", (timestamp, msg_sender, msg_content))
         self.log.commit()
 
-config = ConfigParser.ConfigParser()
-config.read("robot.cfg")
+if __name__ == "__main__":
+    config = ConfigParser.ConfigParser()
+    config.read("robot.cfg")
 
-bot = BeerLoggerBot(config)
-bot.start()
+    bot = BeerLoggerBot(config)
+    bot.start()
