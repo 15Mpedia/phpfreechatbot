@@ -1,38 +1,23 @@
 import ConfigParser
-from datetime import datetime
 import htmlentitydefs
 import re
 import sched
 import smtplib
 from email.mime.text import MIMEText
+import sqlite3
 import traceback
 import time
+from datetime import datetime
 import ast
 
 import requests
+from dateutil.parser import parse as timeparse
+import lxml.html
 
 __author__ = 'cseebach'
 
 def unescape(text):
-    def fixup(m):
-        text = m.group(0)
-        if text[:2] == "&#":
-            # character reference
-            try:
-                if text[:3] == "&#x":
-                    return unichr(int(text[3:-1], 16))
-                else:
-                    return unichr(int(text[2:-1]))
-            except ValueError:
-                pass
-        else:
-            # named entity
-            try:
-                text = unichr(htmlentitydefs.name2codepoint[text[1:-1]])
-            except KeyError:
-                pass
-        return text # leave as is
-    return re.sub("&#?\w+;", fixup, text)
+    return lxml.html.fromstring(text).text_content()
 
 class PFCClientError(Exception):
     pass
@@ -181,26 +166,30 @@ class BeerLoggerBot(PFCClient):
     """
     An extension of PFCClient that offers the following commands:
 
-    !sendLog [number] email [subject]
-        stops collecting the top log on the stack and sends it to the given email
-        optionally, sends a log at a different position in the stack
-        note: logs start when this bot logs in, and do not reach backwards into
-        the cache
-
-    !viewLogs
-        view all the logs in the stack with their numbers and subjects
-
-    !clearLog number
-        remove the log with the specified number from the log stack
-
     !gimmeBeer [kind]
         give the person who sends this command a beer of the specified kind
+
+    !gimme [thing]
+        give the person who sends this command the given thing
     """
 
     def __init__(self, config):
+        """
+        Create a new BeerLoggerBot.
+        """
         PFCClient.__init__(self)
         self.config = config
-        self.logs = [Log()]
+        self.log = sqlite3.connect("log.db")
+        self.log_marks = {}
+        self.create_log_tables()
+
+    def create_log_tables(self):
+        self.log.executescript("""
+        CREATE TABLE IF NOT EXISTS log (date float, sender text, content text);
+        CREATE INDEX IF NOT EXISTS log_time ON log (date ASC);
+
+        CREATE TABLE IF NOT EXISTS marks (name text PRIMARY KEY, start float, end float);
+        """)
 
     def start(self):
         """
@@ -248,49 +237,95 @@ class BeerLoggerBot(PFCClient):
             thing = msg_content[len("!gimme "):]
             self.send("Here's {0} for ya, {1}!".format(thing, msg_sender))
 
-    """
-    def make_log_email(self, log_num, subject, to):
+    @PFCClient.content_responder
+    def markLog(self, msg_content):
+        splits = msg_content.split()
+
+        if len(splits) >= 3:
+            max_time_row = self.log.execute("SELECT MAX(date) FROM log;").fetchone()
+            if not max_time_row:
+                self.send("Nothing logged. Cannot mark.")
+                return
+            default = datetime.fromtimestamp(max_time_row[0])
+
+            try:
+                start_time = time.mktime(timeparse(splits[1], default=default).timetuple())
+            except ValueError:
+                self.send("Incorrect date format. Cannot mark.")
+                return
+            try:
+                end_time = time.mktime(timeparse(splits[2], default=default).timetuple())
+                subject = u" ".join(splits[3:])
+                self.set_mark(subject, start_time, end_time)
+            except ValueError:
+                #the end time we tried to parse was actually part of the subject
+                end_time = max_time_row[0]
+                subject = " ".join(splits[2:])
+                self.set_mark(subject, start_time, end_time)
+            except IndexError:
+                #the subject we tried to get doesn't actually exist
+                self.send("No subject specified. Cannot mark.")
+        else:
+            #give usage help
+            self.send("usage: !markLog start_time [end_time] subject")
+            self.send("end time defaults to last sent message")
+            self.send("specify time like this: DD-MM-YYYY_HH:MM:SS")
+            self.send("date defaults to date of last logged message")
+
+    def set_mark(self, subject, start_time, end_time):
+        """
+        Store a mark in the database.
+        """
+        self.log.execute("INSERT OR REPLACE INTO marks values (?,?,?)", (subject, start_time, end_time))
+        self.log.commit()
+        self.send("Mark %s set." % subject)
+
+    @PFCClient.content_responder
+    def sendLog(self, msg_content):
+        splits = msg_content.split()
+
+        if len(splits) == 2:
+            subject = splits[1]
+            email = self.config.get("mailing_list", "address")
+            if self.mark_exists(subject):
+                self.send_log_email(subject, email)
+            else:
+                self.send("No mark by that name.")
+        elif len(splits) >= 3:
+            email = splits[-1]
+            subject = " ".join(splits[1:-1])
+            if self.mark_exists(subject):
+                self.send_log_email(subject, email)
+            else:
+                self.send("No mark by that name.")
+        else:
+            #give usage help
+            self.send("usage: !sendLog subject [email]")
+            self.send("email defaults to configured mailing list address")
+
+    def mark_exists(self, subject):
+        results = self.log.execute("SELECT * FROM marks WHERE name='%s'" % subject)
+        return results.fetchone()
+
+    def make_log_email(self, text, subject, to):
         """
         Create a log email message from the given log.
         """
-        full_log = "\r\n".join("{0} <{1}> {2}".format(*msg[1:]) for msg in self.logs[log_num])
-        msg = MIMEText(full_log)
+        msg = MIMEText(text)
         msg["Subject"] = "Chat Log: " + subject
         msg["From"] = self.config.get("email", "fromaddr")
         msg["To"] = to
 
         return msg
 
-    @PFCClient.content_responder
-    def sendLog(self, msg_content):
-        """
-        The !sendLog command
-        """
-        splits = msg_content.split()
-        #arguments must be the command itself and an address, at least
-        if len(splits) <=2:
-            return
+    def send_log_email(self, subject, to_addr):
+        mark = self.log.execute("SELECT * FROM marks WHERE name='%s'" % subject).fetchone()
 
-        subject = None
-        log_num = 0
-        #test if format is !sendLog log_num email
-        try:
-            log_num = int(splits[1])
-            to_addr = splits[2]
-        except ValueError:
-            #format must be !sendLog email or !sendLog email subject
-            to_addr = splits[1]
-            if len(splits) > 2:
-                subject = " ".join(splits[2:])
-        log_num -= 1
+        messages = []
+        for row in self.log.execute("SELECT * FROM log WHERE date >= %f AND date <= %f" % (mark[1], mark[2])):
+            messages.append("<{0}> {1}".format(row[1], row[2]))
 
-        # if subject is specified, change the subject of the log
-        # otherwise, use the subject from the log
-        if subject:
-            self.logs[log_num].subject = subject
-        else:
-            subject = self.logs[log_num].subject
-        message = self.make_log_email(log_num, subject, to_addr).as_string()
+        log_email = self.make_log_email("\n".join(messages), subject, to_addr)
 
         #email sending machinery
         server = smtplib.SMTP(self.config.get("email", "server"))
@@ -298,39 +333,10 @@ class BeerLoggerBot(PFCClient):
         server.login(self.config.get("email", "username"),
                      self.config.get("email", "password"))
         try:
-            server.sendmail(self.config.get("email", "fromaddr"),
-                            to_addr, message)
+            server.sendmail(self.config.get("email", "fromaddr"), to_addr, log_email.as_string())
             self.send("Log emailed to "+to_addr)
-            if log_num == -1:
-                self.logs.append(Log())
         except smtplib.SMTPException:
             self.send("Couldn't send to that email address, sorry.")
-
-    @PFCClient.content_responder
-    def viewLogs(self, msg):
-        """
-        The !viewLogs command.
-        """
-        for i, log in enumerate(reversed(self.logs)):
-            self.send("Log {}: {}".format(-i, log.subject))
-
-    @PFCClient.content_responder
-    def clearLog(self, msg_content):
-        """
-        The !clearLog command.
-        """
-        splits = msg_content.split()
-        if len(splits) < 2:
-            return
-        try:
-            log_num = int(splits[1])
-            del self.logs[log_num-1]
-            self.send("Log {0} cleared.".format(log_num))
-        except ValueError:
-            self.send("That's not a valid number. :P")
-        except IndexError:
-            self.send("No log with that number exists.")
-    """
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
                          msg_room, msg_type, msg_content):
@@ -338,9 +344,21 @@ class BeerLoggerBot(PFCClient):
         Need to override this method in order to properly log incoming
         messages.
         """
-        self.logs[-1].append([msg_date, msg_time, msg_sender, msg_content])
+        self.log_message(msg_date, msg_time, msg_sender, msg_content)
         PFCClient.message_received(self, msg_number, msg_date, msg_time,
                                    msg_sender, msg_room, msg_type, msg_content)
+
+    def log_message(self, msg_date, msg_time, msg_sender, msg_content):
+        """
+        Put this message in a log.
+        """
+        parsed_time = datetime.strptime(msg_date+" "+msg_time, "%d\\/%m\\/%Y %H:%M:%S")
+        timestamp = time.mktime(parsed_time.timetuple())
+        self.log.execute("INSERT INTO log VALUES (?,?,?)", (timestamp, msg_sender, msg_content))
+        self.log.commit()
+
+
+
 
 config = ConfigParser.ConfigParser()
 config.read("robot.cfg")
