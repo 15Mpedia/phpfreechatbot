@@ -11,6 +11,7 @@ import urllib
 from dateutil.parser import parse as timeparse
 import lxml.html
 import daemon
+import lockfile
 
 from pfcclient import PFCClient
 
@@ -40,13 +41,13 @@ class BeerLoggerBot(PFCClient):
         pull some random garbage together from 4chan's diy board
     """
 
-    def __init__(self, config):
+    def __init__(self, config, db=None):
         """
         Create a new BeerLoggerBot.
         """
         PFCClient.__init__(self)
         self.config = config
-        self.log = sqlite3.connect("pfc_log.db")
+        self.log = db or sqlite3.connect("pfc_log.db")
         self.log_marks = {}
         self.create_log_tables()
 
@@ -249,10 +250,14 @@ class BeerLoggerBot(PFCClient):
         self.log.commit()
 
 if __name__ == "__main__":
-    context = daemon.DaemonContext(stderr=open("error.log", "w+"))
-    with context:
-        config = ConfigParser.ConfigParser()
-        config.read("robot.cfg")
+    context = daemon.DaemonContext(
+        stderr=open("error.log", "w+"), 
+        pidfile=lockfile.FileLock("robot.pid"))
 
-        bot = BeerLoggerBot(config)
+    config = ConfigParser.ConfigParser()
+    config.read("robot.cfg")
+
+    bot = BeerLoggerBot(config, db=sqlite3.connect("robot.db"))
+
+    with context:
         bot.start()
