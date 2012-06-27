@@ -10,6 +10,8 @@ import urllib
 
 from dateutil.parser import parse as timeparse
 import lxml.html
+import daemon
+
 from pfcclient import PFCClient
 
 __author__ = 'cseebach'
@@ -247,8 +249,10 @@ class BeerLoggerBot(PFCClient):
         self.log.commit()
 
 if __name__ == "__main__":
-    config = ConfigParser.ConfigParser()
-    config.read("robot.cfg")
+    context = daemon.DaemonContext(stderr=open("error.log", "w+"))
+    with context:
+        config = ConfigParser.ConfigParser()
+        config.read("robot.cfg")
 
-    bot = BeerLoggerBot(config)
-    bot.start()
+        bot = BeerLoggerBot(config)
+        bot.start()
