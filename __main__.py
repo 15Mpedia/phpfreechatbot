@@ -1,12 +1,15 @@
 import ConfigParser
+import random
 import re
 import smtplib
 from email.mime.text import MIMEText
 import sqlite3
 import time
 from datetime import datetime
+import urllib
 
 from dateutil.parser import parse as timeparse
+import lxml.html
 from pfcclient import PFCClient
 
 __author__ = 'cseebach'
@@ -30,6 +33,9 @@ class BeerLoggerBot(PFCClient):
     !sendLog mark_name [email]
         send a marked portion of the log to the given email. Default to a
         configured mailing list address.
+
+    !random
+        pull some random garbage together from 4chan's diy board
     """
 
     def __init__(self, config):
@@ -38,7 +44,7 @@ class BeerLoggerBot(PFCClient):
         """
         PFCClient.__init__(self)
         self.config = config
-        self.log = sqlite3.connect("log.db")
+        self.log = sqlite3.connect("pfc_log.db")
         self.log_marks = {}
         self.create_log_tables()
 
@@ -59,6 +65,13 @@ class BeerLoggerBot(PFCClient):
                      self.config.get("chat", "name"))
         self.schedule_update()
         self.run()
+
+    @PFCClient.content_responder
+    def random(self, msg_content):
+        text = lxml.html.fromstring(urllib.urlopen("http://boards.4chan.org/diy/").read()).text_content()
+        words = text.split()
+        response_words = [random.choice(words) for i in xrange(5)]
+        self.send(" ".join(response_words) + ".")
 
     @PFCClient.all_fields_responder
     def gimmeBeer(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
