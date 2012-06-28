@@ -7,6 +7,8 @@ import sqlite3
 import time
 from datetime import datetime
 import urllib
+import os
+import random
 
 from dateutil.parser import parse as timeparse
 import lxml.html
@@ -30,15 +32,23 @@ class BeerLoggerBot(PFCClient):
     !gimme [thing]
         give the person who sends this command the given thing
 
+    !random
+        pull together some random garbage from 4chan's diy board
+
+    !deed
+        record an epic deed
+        
+    !listDeeds
+        list recent epic deeds
+
+    the following are here but buggy at the moment:
+
     !markLog start_time [end_time] subject
         name a portion of the log
 
     !sendLog mark_name [email]
         send a marked portion of the log to the given email. Default to a
         configured mailing list address.
-
-    !random
-        pull some random garbage together from 4chan's diy board
     """
 
     def __init__(self, config, db=None):
@@ -47,8 +57,7 @@ class BeerLoggerBot(PFCClient):
         """
         PFCClient.__init__(self)
         self.config = config
-        self.log = db or sqlite3.connect("pfc_log.db")
-        self.log_marks = {}
+        self.log = db or sqlite3.connect("robot.db")
         self.create_log_tables()
 
     def create_log_tables(self):
@@ -57,6 +66,8 @@ class BeerLoggerBot(PFCClient):
         CREATE INDEX IF NOT EXISTS log_time ON log (date ASC);
 
         CREATE TABLE IF NOT EXISTS marks (name text PRIMARY KEY, start float, end float);
+        
+        CREATE TABLE IF NOT EXISTS deeds (time float, hero text, deed text);
         """)
 
     def start(self):
@@ -230,6 +241,44 @@ class BeerLoggerBot(PFCClient):
         except smtplib.SMTPException:
             self.send("Couldn't send to that email address, sorry.")
 
+    day_to_string_array = ["1st", "2nd", "3rd"]
+
+    def day_string(day_number):
+        if day_number < len(day_to_string_array):
+            return day_to_string_array[day_number-1]
+        else:
+	    return str(day_number)+"th"
+
+    month_to_string_array = ["", "January", "February", "March", "April", "May", "June", 
+        "July", "August", "September", "October", "November", "December"]
+
+    def month_string(month_number):
+        return month_to_string_array[month_number]
+
+    def deed_ending():
+        return random.choice(("May this day live on in history.", 
+            "Let this be known for all time.", 
+            "May our children's children speak of this heroism in hushed tones.", 
+            "Surely the Earth trembles with this greatness.", 
+            "The Gods bow down before you.", 
+            "Let us savor the sweet taste of victory.", 
+            "The annals of time bear the great weight of this day."))
+
+    @PFCClient.all_fields_responder
+    def deed(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
+              msg_type, msg_content):
+        splits = msg_content.split()
+        if(len(splits) >= 3):
+            hero = splits[1]
+            deed = " ".join(splits[2:])
+            parsed_time = datetime.strptime(msg_date+" "+msg_time, "%d\\/%m\\/%Y %H:%M:%S")
+            timestamp = time.mktime(parsed_time.timetuple())
+            
+            self.log.execute("INSERT INTO deeds VALUES(?,?,?);", (timestamp, hero, deed))
+
+            self.send("And thus it was known that in Anno Domini {0}, on the {1} day in the month of {2}, {3} {4}.".format(parsed_time.year, day_string(parsed_time.day), month_string(parsed_time.month), hero, deed))
+            self.send(deed_ending())
+
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
                          msg_room, msg_type, msg_content):
         """
@@ -251,13 +300,15 @@ class BeerLoggerBot(PFCClient):
 
 if __name__ == "__main__":
     context = daemon.DaemonContext(
-        stderr=open("error.log", "w+"), 
-        pidfile=lockfile.FileLock("robot.pid"))
+        stdout=open("robot_out.log", "w+"),
+        stderr=open("robot_error.log", "w+"),
+        pidfile=lockfile.FileLock("robot.pid"),
+        working_directory = os.getcwd(),
+        umask=0o777)
 
     config = ConfigParser.ConfigParser()
     config.read("robot.cfg")
 
-    bot = BeerLoggerBot(config, db=sqlite3.connect("robot.db"))
-
     with context:
+        bot = BeerLoggerBot(config)
         bot.start()
