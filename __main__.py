@@ -241,21 +241,20 @@ class BeerLoggerBot(PFCClient):
         except smtplib.SMTPException:
             self.send("Couldn't send to that email address, sorry.")
 
-    day_to_string_array = ["1st", "2nd", "3rd"]
-
-    def day_string(day_number):
+    def day_string(self, day_number):
+        day_to_string_array = ["1st", "2nd", "3rd"]
         if day_number < len(day_to_string_array):
             return day_to_string_array[day_number-1]
         else:
-	    return str(day_number)+"th"
+            return str(day_number)+"th"
 
-    month_to_string_array = ["", "January", "February", "March", "April", "May", "June", 
-        "July", "August", "September", "October", "November", "December"]
-
-    def month_string(month_number):
+    def month_string(self, month_number):
+        month_to_string_array = ["", "January", "February", "March", "April",
+                                 "May", "June", "July", "August", "September",
+                                 "October", "November", "December"]
         return month_to_string_array[month_number]
 
-    def deed_ending():
+    def deed_ending(self):
         return random.choice(("May this day live on in history.", 
             "Let this be known for all time.", 
             "May our children's children speak of this heroism in hushed tones.", 
@@ -268,7 +267,7 @@ class BeerLoggerBot(PFCClient):
     def deed(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
               msg_type, msg_content):
         splits = msg_content.split()
-        if(len(splits) >= 3):
+        if len(splits) >= 3:
             hero = splits[1]
             deed = " ".join(splits[2:])
             parsed_time = datetime.strptime(msg_date+" "+msg_time, "%d\\/%m\\/%Y %H:%M:%S")
@@ -276,8 +275,8 @@ class BeerLoggerBot(PFCClient):
             
             self.log.execute("INSERT INTO deeds VALUES(?,?,?);", (timestamp, hero, deed))
 
-            self.send("And thus it was known that in Anno Domini {0}, on the {1} day in the month of {2}, {3} {4}.".format(parsed_time.year, day_string(parsed_time.day), month_string(parsed_time.month), hero, deed))
-            self.send(deed_ending())
+            self.send("And thus it was known that in Anno Domini {0}, on the {1} day in the month of {2}, {3} {4}.".format(parsed_time.year, self.day_string(parsed_time.day), self.month_string(parsed_time.month), hero, deed))
+            self.send(self.deed_ending())
 
     def message_received(self, msg_number, msg_date, msg_time, msg_sender,
                          msg_room, msg_type, msg_content):
