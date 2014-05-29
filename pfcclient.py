@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import re
 import sched
 import traceback
@@ -6,6 +9,8 @@ import ast
 
 import requests
 import lxml.html
+
+#Forked from: https://github.com/spirulence/phpfreechatlogger
 
 __author__ = 'Cameron'
 
@@ -117,8 +122,9 @@ class PFCClient(sched.scheduler):
         Called when a message has been recieved from the server.
         """
         try:
+            print msg_number, msg_date, msg_time, msg_sender, msg_room, msg_type, msg_content
             if msg_content.startswith("!"):
-                command = msg_content[1:].split()[0]
+                command = msg_content[1:].split()[0].lower()
                 if command in self.all_fields_responders:
                     responder = self.all_fields_responders[command]
                     responder(self, msg_number, msg_date, msg_time, msg_sender,
