@@ -16,9 +16,6 @@ from pfcclient import PFCClient
 
 __author__ = 'cseebach'
 
-def is_email(string):
-    return re.match(r"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$", string)
-
 class WikiChatBot(PFCClient):
     """
     An extension of PFCClient that offers the following commands:
@@ -50,7 +47,17 @@ class WikiChatBot(PFCClient):
         words = text.split()
         response_words = [random.choice(words) for i in xrange(5)]
         self.send(" ".join(response_words) + ".")
-
+    
+    @PFCClient.all_fields_responder
+    def ayuda(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
+              msg_type, msg_content):
+        """
+        The !ayuda command
+        """
+        comandos = ['ayuda', 'hola', 'topsy']
+        comandos_str = ', '.join(['!%s' % (comando) for comando in comandos])
+        self.send("Soy un bot. Los comandos disponibles son: %s. Para ver la ayuda de cada comando, escribe !ayuda comando" % comandos_str)
+    
     @PFCClient.all_fields_responder
     def hola(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
               msg_type, msg_content):
@@ -82,6 +89,8 @@ class WikiChatBot(PFCClient):
             self.send("http://topsy.com/analytics?q1={0}&q2={1}".format(splits[1], splits[2]))
         else:
             self.send("http://topsy.com/analytics?q1={0}&q2={1}&q3={2}".format(splits[1], splits[2], splits[3]))
+    
+    
 
 if __name__ == "__main__":
     config = ConfigParser.ConfigParser()
