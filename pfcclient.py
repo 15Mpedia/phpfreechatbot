@@ -122,7 +122,7 @@ class PFCClient(sched.scheduler):
         Called when a message has been recieved from the server.
         """
         try:
-            print msg_number, msg_date, msg_time, msg_sender, msg_room, msg_type, msg_content.encode('utf-8')
+            print msg_number, msg_date, msg_time, msg_sender, msg_room, msg_type, msg_content.encode('ascii')
             if msg_content.startswith("!"):
                 command = msg_content[1:].split()[0].lower()
                 if command in self.all_fields_responders:
@@ -132,6 +132,13 @@ class PFCClient(sched.scheduler):
                 if command in self.content_responders:
                     responder = self.content_responders[command]
                     responder(self, msg_content)
+            else:
+                if msg_type == 'send' and not 'bot' in msg_sender.lower(): #exclude bots
+                    command = "nocommand"
+                    if command in self.all_fields_responders:
+                        responder = self.all_fields_responders[command]
+                        responder(self, msg_number, msg_date, msg_time, msg_sender,
+                                  msg_room, msg_type, msg_content)
         except:
             print "Exception while responding to a message."
             traceback.print_exc()

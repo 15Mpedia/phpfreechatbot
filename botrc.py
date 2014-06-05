@@ -48,11 +48,11 @@ class WikiChatBot(PFCClient):
         self.run()
     
     def recentchanges(self):
-        time.sleep(5)
+        time.sleep(30) #courtesy delay while bot enter to chat
         while True:
             periodtocheck = self.delay #in seconds
             rcend = (datetime.datetime.now() - datetime.timedelta(seconds=periodtocheck)).strftime('%Y%m%d%H%M%S')
-            print rcend
+            print 'Leyendo cambios recientes desde', rcend
             urlrc = 'http://wiki.15m.cc/w/api.php?action=query&list=recentchanges&rcshow=anon&rcprop=title|ids|user|timestamp&rcend=%s&rclimit=500&format=json' % (rcend)
             jsonrc = json.loads(unicode(urllib.urlopen(urlrc).read(), 'utf-8'))
             for rcedit in jsonrc['query']['recentchanges']:
@@ -63,14 +63,7 @@ class WikiChatBot(PFCClient):
             
             #break #for testing
             time.sleep(self.delay) #seconds of delay until next iteration
-            
-    @PFCClient.content_responder
-    def random(self, msg_content):
-        text = lxml.html.fromstring(urllib.urlopen("").read()).text_content()
-        words = text.split()
-        response_words = [random.choice(words) for i in xrange(5)]
-        self.send(" ".join(response_words) + ".")
-
+    
 if __name__ == "__main__":
     config = ConfigParser.ConfigParser()
     config.read("botrc.cfg")

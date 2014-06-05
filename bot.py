@@ -41,13 +41,11 @@ class WikiChatBot(PFCClient):
         self.schedule_update()
         self.run()
 
-    @PFCClient.content_responder
-    def random(self, msg_content):
-        text = lxml.html.fromstring(urllib.urlopen("").read()).text_content()
-        words = text.split()
-        response_words = [random.choice(words) for i in xrange(5)]
-        self.send(" ".join(response_words) + ".")
-    
+    @PFCClient.all_fields_responder
+    def nocommand(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
+              msg_type, msg_content):
+        self.send(unicode(msg_content, 'ascii')) 
+        
     @PFCClient.all_fields_responder
     def ayuda(self, msg_number, msg_date, msg_time, msg_sender, msg_room,
               msg_type, msg_content):
